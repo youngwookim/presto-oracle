@@ -1,4 +1,4 @@
-# Presto OraclePlugin
+# Presto Oracle Plugin
 
 This is a plugin for Presto that allow you to use Oracle Jdbc Connection
 
@@ -25,3 +25,11 @@ Create a dir inside plugin dir called oracle. To make it easier you could copy m
     
 ## Building Oracle Driver
 Oracle Driver is not available in common repositories, so you will need to download it from Oracle and install manually in your repository.
+```
+$ mvn install:install-file \
+-DgroupId=com.oracle \
+-DartifactId=ojdbc6 \
+-Dversion=11.2.0.4 \
+-Dpackaging=jar \
+-Dfile=/path/to/ojdbc6.jar
+```
