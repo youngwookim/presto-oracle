@@ -263,6 +263,9 @@ public class OracleClient extends BaseJdbcClient {
             	return VARBINARY;
             case Types.CLOB:
             	return VARCHAR;
+            // FIXME
+            case Types.OTHER:
+            	return VARBINARY;
         }
         return null;
     }
