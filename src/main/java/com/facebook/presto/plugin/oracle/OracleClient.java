@@ -20,6 +20,7 @@ import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Types;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -30,6 +31,17 @@ import javax.inject.Inject;
 import oracle.jdbc.OracleDriver;
 
 import org.apache.log4j.Logger;
+
+import static com.facebook.presto.spi.type.BigintType.BIGINT;
+import static com.facebook.presto.spi.type.BooleanType.BOOLEAN;
+import static com.facebook.presto.spi.type.DateType.DATE;
+import static com.facebook.presto.spi.type.DoubleType.DOUBLE;
+import static com.facebook.presto.spi.type.TimeType.TIME;
+import static com.facebook.presto.spi.type.TimeWithTimeZoneType.TIME_WITH_TIME_ZONE;
+import static com.facebook.presto.spi.type.TimestampType.TIMESTAMP;
+import static com.facebook.presto.spi.type.TimestampWithTimeZoneType.TIMESTAMP_WITH_TIME_ZONE;
+import static com.facebook.presto.spi.type.VarbinaryType.VARBINARY;
+import static com.facebook.presto.spi.type.VarcharType.VARCHAR;
 
 import com.facebook.presto.plugin.jdbc.BaseJdbcClient;
 import com.facebook.presto.plugin.jdbc.BaseJdbcConfig;
@@ -137,6 +149,8 @@ public class OracleClient extends BaseJdbcClient {
  			DatabaseMetaData metadata = connection.getMetaData();
 			String schemaName = tableHandle.getSchemaName().toUpperCase();
 			String tableName = tableHandle.getTableName().toUpperCase();
+			log.info("getColumns: schemaName=" + schemaName);
+			log.info("getColumns: tableName=" + tableName);
 			try (ResultSet resultSet = metadata.getColumns(null, schemaName,
 					tableName, null)) {
 				List<JdbcColumnHandle> columns = new ArrayList<>();
@@ -209,4 +223,47 @@ public class OracleClient extends BaseJdbcClient {
 		String sqlType = super.toSqlType(type);
 		return sqlType;
 	}
+	
+	@Override
+	protected Type toPrestoType(int jdbcType)
+    {
+        switch (jdbcType) {
+            case Types.BIT:
+            case Types.BOOLEAN:
+                return BOOLEAN;
+            case Types.TINYINT:
+            case Types.SMALLINT:
+            case Types.INTEGER:
+            case Types.BIGINT:
+                return BIGINT;
+            case Types.FLOAT:
+            case Types.REAL:
+            case Types.DOUBLE:
+            case Types.NUMERIC:
+            case Types.DECIMAL:
+                return DOUBLE;
+            case Types.CHAR:
+            case Types.NCHAR:
+            case Types.VARCHAR:
+            case Types.NVARCHAR:
+            case Types.LONGVARCHAR:
+            case Types.LONGNVARCHAR:
+                return VARCHAR;
+            case Types.BINARY:
+            case Types.VARBINARY:
+            case Types.LONGVARBINARY:
+                return VARBINARY;
+            case Types.DATE:
+                return DATE;
+            case Types.TIME:
+                return TIME;
+            case Types.TIMESTAMP:
+                return TIMESTAMP;
+            case Types.BLOB:
+            	return VARBINARY;
+            case Types.CLOB:
+            	return VARCHAR;
+        }
+        return null;
+    }
 }
