@@ -30,16 +30,14 @@ import javax.inject.Inject;
 
 import oracle.jdbc.OracleDriver;
 
-import org.apache.log4j.Logger;
+import io.airlift.log.Logger;
 
 import static com.facebook.presto.spi.type.BigintType.BIGINT;
 import static com.facebook.presto.spi.type.BooleanType.BOOLEAN;
 import static com.facebook.presto.spi.type.DateType.DATE;
 import static com.facebook.presto.spi.type.DoubleType.DOUBLE;
 import static com.facebook.presto.spi.type.TimeType.TIME;
-import static com.facebook.presto.spi.type.TimeWithTimeZoneType.TIME_WITH_TIME_ZONE;
 import static com.facebook.presto.spi.type.TimestampType.TIMESTAMP;
-import static com.facebook.presto.spi.type.TimestampWithTimeZoneType.TIMESTAMP_WITH_TIME_ZONE;
 import static com.facebook.presto.spi.type.VarbinaryType.VARBINARY;
 import static com.facebook.presto.spi.type.VarcharType.VARCHAR;
 
@@ -47,6 +45,7 @@ import com.facebook.presto.plugin.jdbc.BaseJdbcClient;
 import com.facebook.presto.plugin.jdbc.BaseJdbcConfig;
 import com.facebook.presto.plugin.jdbc.JdbcColumnHandle;
 import com.facebook.presto.plugin.jdbc.JdbcConnectorId;
+import com.facebook.presto.plugin.jdbc.JdbcSplit;
 import com.facebook.presto.plugin.jdbc.JdbcTableHandle;
 import com.facebook.presto.spi.PrestoException;
 import com.facebook.presto.spi.SchemaTableName;
@@ -65,7 +64,7 @@ import com.google.common.collect.ImmutableSet;
  */
 public class OracleClient extends BaseJdbcClient {
 
-	private static final Logger log = Logger.getLogger(OracleClient.class);
+	private static final Logger log = Logger.get(OracleClient.class);
 
 	@Inject
 	public OracleClient(JdbcConnectorId connectorId, BaseJdbcConfig config,
@@ -269,4 +268,15 @@ public class OracleClient extends BaseJdbcClient {
         }
         return null;
     }
+	
+	@Override
+	public String buildSql(JdbcSplit split, List<JdbcColumnHandle> columnHandles)
+	{
+	    return new OracleQueryBuilder(identifierQuote).buildSql(
+	        split.getCatalogName(),
+	        split.getSchemaName(),
+	        split.getTableName(),
+	        columnHandles,
+	        split.getTupleDomain());
+	}
 }
