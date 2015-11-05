@@ -144,7 +144,8 @@ public class OracleClient extends BaseJdbcClient {
 				connectionProperties)) {
 			//If the table is mapped to another user you will need to get the synonym to that table
 			//So, in this case, is mandatory to use setIncludeSynonyms
-			( (oracle.jdbc.driver.OracleConnection)connection ).setIncludeSynonyms(true);
+			//FIXME
+			//( (oracle.jdbc.driver.OracleConnection)connection ).setIncludeSynonyms(true);
  			DatabaseMetaData metadata = connection.getMetaData();
 			String schemaName = tableHandle.getSchemaName().toUpperCase();
 			String tableName = tableHandle.getTableName().toUpperCase();
