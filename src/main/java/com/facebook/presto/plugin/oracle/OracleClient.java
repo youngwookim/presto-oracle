@@ -269,7 +269,7 @@ public class OracleClient extends BaseJdbcClient {
         }
         return null;
     }
-	
+
 	@Override
 	public String buildSql(JdbcSplit split, List<JdbcColumnHandle> columnHandles)
 	{
