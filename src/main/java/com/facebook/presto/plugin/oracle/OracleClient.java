@@ -103,7 +103,7 @@ public class OracleClient extends BaseJdbcClient
     {
         // Here we put TABLE and SYNONYM when the table schema is another user
         // schema
-        return connection.getMetaData().getTables(null, schemaName, tableName, new String[] { "TABLE", "SYNONYM" });
+        return connection.getMetaData().getTables(null, schemaName, tableName, new String[] {"TABLE", "SYNONYM"});
     }
 
     @Nullable
@@ -227,44 +227,44 @@ public class OracleClient extends BaseJdbcClient
     protected Type toPrestoType(int jdbcType)
     {
         switch (jdbcType) {
-        case Types.BIT:
-        case Types.BOOLEAN:
-            return BOOLEAN;
-        case Types.TINYINT:
-        case Types.SMALLINT:
-        case Types.INTEGER:
-        case Types.BIGINT:
-            return BIGINT;
-        case Types.FLOAT:
-        case Types.REAL:
-        case Types.DOUBLE:
-        case Types.NUMERIC:
-        case Types.DECIMAL:
-            return DOUBLE;
-        case Types.CHAR:
-        case Types.NCHAR:
-        case Types.VARCHAR:
-        case Types.NVARCHAR:
-        case Types.LONGVARCHAR:
-        case Types.LONGNVARCHAR:
-            return VARCHAR;
-        case Types.BINARY:
-        case Types.VARBINARY:
-        case Types.LONGVARBINARY:
-            return VARBINARY;
-        case Types.DATE:
-            return DATE;
-        case Types.TIME:
-            return TIME;
-        case Types.TIMESTAMP:
-            return TIMESTAMP;
-        case Types.BLOB:
-            return VARBINARY;
-        case Types.CLOB:
-            return VARCHAR;
-        // FIXME
-        case Types.OTHER:
-            return VARBINARY;
+            case Types.BIT:
+            case Types.BOOLEAN:
+                return BOOLEAN;
+            case Types.TINYINT:
+            case Types.SMALLINT:
+            case Types.INTEGER:
+            case Types.BIGINT:
+                return BIGINT;
+            case Types.FLOAT:
+            case Types.REAL:
+            case Types.DOUBLE:
+            case Types.NUMERIC:
+            case Types.DECIMAL:
+                return DOUBLE;
+            case Types.CHAR:
+            case Types.NCHAR:
+            case Types.VARCHAR:
+            case Types.NVARCHAR:
+            case Types.LONGVARCHAR:
+            case Types.LONGNVARCHAR:
+                return VARCHAR;
+            case Types.BINARY:
+            case Types.VARBINARY:
+            case Types.LONGVARBINARY:
+                return VARBINARY;
+            case Types.DATE:
+                return DATE;
+            case Types.TIME:
+                return TIME;
+            case Types.TIMESTAMP:
+                return TIMESTAMP;
+            case Types.BLOB:
+                return VARBINARY;
+            case Types.CLOB:
+                return VARCHAR;
+            // FIXME
+            case Types.OTHER:
+                return VARBINARY;
         }
         return null;
     }

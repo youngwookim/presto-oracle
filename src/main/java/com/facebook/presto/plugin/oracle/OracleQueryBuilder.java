@@ -39,6 +39,7 @@ public class OracleQueryBuilder extends QueryBuilder
     @Override
     protected String toPredicate(String columnName, String operator, Object value, Type type)
     {
+        // QueryBuilder can not generate SQL expression for Oracle's Timestamp
         String valueStrting;
         if (type.equals(TimestampType.TIMESTAMP)) {
             long unixtime = Longs.tryParse(value.toString());

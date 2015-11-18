@@ -39,7 +39,7 @@ public class OracleConfig
 
     /**
      * @param user
-     *            the user to set
+     *        the user to set
      */
     @Config("oracle.user")
     public OracleConfig setUser(String user)
@@ -58,7 +58,7 @@ public class OracleConfig
 
     /**
      * @param password
-     *            the password to set
+     *        the password to set
      */
     @Config("oracle.password")
     public OracleConfig setPassword(String password)
@@ -77,7 +77,7 @@ public class OracleConfig
 
     /**
      * @param url
-     *            the url to set
+     *        the url to set
      */
     @Config("oracle.password")
     public OracleConfig setUrl(String url)
