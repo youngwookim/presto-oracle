@@ -13,34 +13,6 @@
  */
 package com.facebook.presto.plugin.oracle;
 
-import static com.facebook.presto.spi.StandardErrorCode.NOT_SUPPORTED;
-import static com.google.common.collect.Iterables.getOnlyElement;
-
-import java.sql.Connection;
-import java.sql.DatabaseMetaData;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Types;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
-
-import javax.annotation.Nullable;
-import javax.inject.Inject;
-
-import oracle.jdbc.OracleDriver;
-
-import io.airlift.log.Logger;
-
-import static com.facebook.presto.spi.type.BigintType.BIGINT;
-import static com.facebook.presto.spi.type.BooleanType.BOOLEAN;
-import static com.facebook.presto.spi.type.DateType.DATE;
-import static com.facebook.presto.spi.type.DoubleType.DOUBLE;
-import static com.facebook.presto.spi.type.TimeType.TIME;
-import static com.facebook.presto.spi.type.TimestampType.TIMESTAMP;
-import static com.facebook.presto.spi.type.VarbinaryType.VARBINARY;
-import static com.facebook.presto.spi.type.VarcharType.VARCHAR;
-
 import com.facebook.presto.plugin.jdbc.BaseJdbcClient;
 import com.facebook.presto.plugin.jdbc.BaseJdbcConfig;
 import com.facebook.presto.plugin.jdbc.JdbcColumnHandle;
@@ -54,6 +26,31 @@ import com.facebook.presto.spi.type.Type;
 import com.google.common.base.Throwables;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
+import io.airlift.log.Logger;
+import oracle.jdbc.OracleDriver;
+
+import javax.annotation.Nullable;
+import javax.inject.Inject;
+
+import java.sql.Connection;
+import java.sql.DatabaseMetaData;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Types;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+
+import static com.facebook.presto.spi.StandardErrorCode.NOT_SUPPORTED;
+import static com.facebook.presto.spi.type.BigintType.BIGINT;
+import static com.facebook.presto.spi.type.BooleanType.BOOLEAN;
+import static com.facebook.presto.spi.type.DateType.DATE;
+import static com.facebook.presto.spi.type.DoubleType.DOUBLE;
+import static com.facebook.presto.spi.type.TimeType.TIME;
+import static com.facebook.presto.spi.type.TimestampType.TIMESTAMP;
+import static com.facebook.presto.spi.type.VarbinaryType.VARBINARY;
+import static com.facebook.presto.spi.type.VarcharType.VARCHAR;
+import static com.google.common.collect.Iterables.getOnlyElement;
 
 /**
  * Implementation of OracleClient. It describes table, schemas and columns
@@ -88,7 +85,6 @@ public class OracleClient extends BaseJdbcClient
             ImmutableSet.Builder<String> schemaNames = ImmutableSet.builder();
             while (resultSet.next()) {
                 String schemaName = resultSet.getString(1).toLowerCase();
-                log.info("Listing schemas: " + schemaName);
                 schemaNames.add(schemaName);
             }
             return schemaNames.build();
@@ -142,17 +138,13 @@ public class OracleClient extends BaseJdbcClient
     public List<JdbcColumnHandle> getColumns(JdbcTableHandle tableHandle)
     {
         try (Connection connection = driver.connect(connectionUrl, connectionProperties)) {
-            // If the table is mapped to another user you will need to get the
-            // synonym to that table
+            // If the table is mapped to another user you will need to get the synonym to that table
             // So, in this case, is mandatory to use setIncludeSynonyms
             // FIXME
-            // ( (oracle.jdbc.driver.OracleConnection)connection
-            // ).setIncludeSynonyms(true);
+            // ( (oracle.jdbc.driver.OracleConnection)connection).setIncludeSynonyms(true);
             DatabaseMetaData metadata = connection.getMetaData();
             String schemaName = tableHandle.getSchemaName().toUpperCase();
             String tableName = tableHandle.getTableName().toUpperCase();
-            log.info("getColumns: schemaName=" + schemaName);
-            log.info("getColumns: tableName=" + tableName);
             try (ResultSet resultSet = metadata.getColumns(null, schemaName, tableName, null)) {
                 List<JdbcColumnHandle> columns = new ArrayList<>();
                 boolean found = false;
