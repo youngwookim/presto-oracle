@@ -28,6 +28,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import io.airlift.log.Logger;
 import oracle.jdbc.OracleDriver;
+import org.apache.commons.lang3.ArrayUtils;
 
 import javax.annotation.Nullable;
 import javax.inject.Inject;
@@ -65,17 +66,14 @@ public class OracleClient extends BaseJdbcClient
 {
     private static final Logger log = Logger.get(OracleClient.class);
 
+    // Oracle SCHEMA we dont want
+    private static final String[] OSWDW = new String[] {"SYS", "SYSTEM", "WMSYS", "INFORMATION_SCHEMA", "XS$NULL", "XDB", "PUBLIC", "CTXSYS", "ODMRSYS"};
+
     @Inject
     public OracleClient(JdbcConnectorId connectorId, BaseJdbcConfig config, OracleConfig oracleConfig)
             throws SQLException
     {
         super(connectorId, config, "", new OracleDriver());
-        // the empty "" is to not use a quote to create queries
-        // BaseJdbcClient already gets these properties
-        // connectionProperties.setProperty("user", oracleConfig.getUser());
-        // connectionProperties.setProperty("url", oracleConfig.getUrl());
-        // connectionProperties.setProperty("password",
-        // oracleConfig.getPassword());
 
         connectionProperties.setProperty("defaultRowPrefetch", "10000");
     }
@@ -88,8 +86,7 @@ public class OracleClient extends BaseJdbcClient
             ImmutableSet.Builder<String> schemaNames = ImmutableSet.builder();
             while (resultSet.next()) {
                 String schemaName = resultSet.getString(1).toLowerCase();
-                if (!schemaName.equals("sys") && !schemaName.equals("information_schema") && !schemaName.equals("xdb") && !schemaName.equals("system")
-                        && !schemaName.equals("wmsys") && !schemaName.equals("xs$null")) {
+                if (!(ArrayUtils.contains(OSWDW, schemaName.toUpperCase()))) {
                     schemaNames.add(schemaName);
                 }
             }
@@ -103,9 +100,12 @@ public class OracleClient extends BaseJdbcClient
     @Override
     protected ResultSet getTables(Connection connection, String schemaName, String tableName) throws SQLException
     {
-        // Here we put TABLE and SYNONYM when the table schema is another user
-        // schema
-        return connection.getMetaData().getTables(null, schemaName, tableName, new String[] {"TABLE", "SYNONYM"});
+        // Here we put TABLE and SYNONYM when the table schema is another user schema
+        ResultSet rs = null;
+        if (!(ArrayUtils.contains(OSWDW, schemaName.toUpperCase()))) {
+            rs = connection.getMetaData().getTables(null, schemaName, tableName, new String[] {"TABLE", "VIEW", "SYNONYM"});
+        }
+        return rs;
     }
 
     @Nullable
@@ -116,7 +116,7 @@ public class OracleClient extends BaseJdbcClient
             DatabaseMetaData metadata = connection.getMetaData();
             String jdbcSchemaName = schemaTableName.getSchemaName();
             String jdbcTableName = schemaTableName.getTableName();
-            if (metadata.storesUpperCaseIdentifiers()) {
+            if (metadata.storesUpperCaseIdentifiers() && !(ArrayUtils.contains(OSWDW, jdbcSchemaName.toUpperCase()))) {
                 jdbcSchemaName = jdbcSchemaName.toUpperCase();
                 jdbcTableName = jdbcTableName.toUpperCase();
             }
@@ -149,8 +149,12 @@ public class OracleClient extends BaseJdbcClient
             // FIXME
             // ( (oracle.jdbc.driver.OracleConnection)connection).setIncludeSynonyms(true);
             DatabaseMetaData metadata = connection.getMetaData();
-            String schemaName = tableHandle.getSchemaName().toUpperCase();
-            String tableName = tableHandle.getTableName().toUpperCase();
+            String schemaName = null;
+            String tableName = null;
+            if (!(ArrayUtils.contains(OSWDW, tableHandle.getSchemaName().toUpperCase()))) {
+                schemaName = tableHandle.getSchemaName().toUpperCase();
+                tableName = tableHandle.getTableName().toUpperCase();
+            }
             try (ResultSet resultSet = metadata.getColumns(null, schemaName, tableName, null)) {
                 List<JdbcColumnHandle> columns = new ArrayList<>();
                 boolean found = false;
