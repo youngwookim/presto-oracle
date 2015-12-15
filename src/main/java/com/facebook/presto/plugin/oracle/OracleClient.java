@@ -39,6 +39,8 @@ import java.sql.SQLException;
 import java.sql.Types;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Properties;
 import java.util.Set;
 
 import static com.facebook.presto.spi.StandardErrorCode.NOT_SUPPORTED;
@@ -75,6 +77,8 @@ public class OracleClient extends BaseJdbcClient
         // connectionProperties.setProperty("password",
         // oracleConfig.getPassword());
 
+        connectionProperties.setProperty("defaultRowPrefetch", "10000");
+
     }
 
     @Override
@@ -85,7 +89,9 @@ public class OracleClient extends BaseJdbcClient
             ImmutableSet.Builder<String> schemaNames = ImmutableSet.builder();
             while (resultSet.next()) {
                 String schemaName = resultSet.getString(1).toLowerCase();
-                schemaNames.add(schemaName);
+                if (schemaName.equals("xdb") || schemaName.equals("system")) {
+                    schemaNames.add(schemaName);
+                }
             }
             return schemaNames.build();
         }
@@ -262,9 +268,35 @@ public class OracleClient extends BaseJdbcClient
     }
 
     @Override
+    public Connection getConnection(JdbcSplit split)
+            throws SQLException
+    {
+        Properties props = toProperties(split.getConnectionProperties());
+        props.put("defaultRowPrefetch", "10000");
+        Connection connection = driver.connect(split.getConnectionUrl(), props);
+        try {
+            connection.setReadOnly(true);
+        }
+        catch (SQLException e) {
+            connection.close();
+            throw e;
+        }
+        return connection;
+    }
+
+    @Override
     public String buildSql(JdbcSplit split, List<JdbcColumnHandle> columnHandles)
     {
         return new OracleQueryBuilder(identifierQuote).buildSql(split.getCatalogName(), split.getSchemaName(),
                 split.getTableName(), columnHandles, split.getTupleDomain());
+    }
+
+    private static Properties toProperties(Map<String, String> map)
+    {
+        Properties properties = new Properties();
+        for (Map.Entry<String, String> entry : map.entrySet()) {
+            properties.setProperty(entry.getKey(), entry.getValue());
+        }
+        return properties;
     }
 }

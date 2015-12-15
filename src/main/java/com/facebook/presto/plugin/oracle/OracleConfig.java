@@ -28,19 +28,23 @@ public class OracleConfig
     private String user;
     private String password;
     private String url;
+    private String defaultRowPrefetch;
 
-    /**
-     * @return the user
-     */
     public String getUser()
     {
         return user;
     }
 
-    /**
-     * @param user
-     *        the user to set
-     */
+    public String getPassword()
+    {
+        return password;
+    }
+
+    public String getUrl()
+    {
+        return url;
+    }
+
     @Config("oracle.user")
     public OracleConfig setUser(String user)
     {
@@ -48,18 +52,6 @@ public class OracleConfig
         return this;
     }
 
-    /**
-     * @return the password
-     */
-    public String getPassword()
-    {
-        return password;
-    }
-
-    /**
-     * @param password
-     *        the password to set
-     */
     @Config("oracle.password")
     public OracleConfig setPassword(String password)
     {
@@ -67,22 +59,22 @@ public class OracleConfig
         return this;
     }
 
-    /**
-     * @return the url
-     */
-    public String getUrl()
-    {
-        return url;
-    }
-
-    /**
-     * @param url
-     *        the url to set
-     */
-    @Config("oracle.password")
+    @Config("oracle.url")
     public OracleConfig setUrl(String url)
     {
         this.url = url;
         return this;
+    }
+
+    @Config("oracle.defaultRowPrefetch")
+    public OracleConfig setDefaultRowPrefetch(String defaultRowPrefetch)
+    {
+        this.defaultRowPrefetch = defaultRowPrefetch;
+        return this;
+    }
+
+    public String getDefaultRowPrefetch()
+    {
+        return defaultRowPrefetch;
     }
 }
