@@ -78,7 +78,6 @@ public class OracleClient extends BaseJdbcClient
         // oracleConfig.getPassword());
 
         connectionProperties.setProperty("defaultRowPrefetch", "10000");
-
     }
 
     @Override
@@ -89,7 +88,7 @@ public class OracleClient extends BaseJdbcClient
             ImmutableSet.Builder<String> schemaNames = ImmutableSet.builder();
             while (resultSet.next()) {
                 String schemaName = resultSet.getString(1).toLowerCase();
-                if (schemaName.equals("xdb") || schemaName.equals("system")) {
+                if (!schemaName.equals("xdb") && !schemaName.equals("system") && !schemaName.equals("wmsys")) {
                     schemaNames.add(schemaName);
                 }
             }
