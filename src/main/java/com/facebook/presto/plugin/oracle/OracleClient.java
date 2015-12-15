@@ -88,7 +88,7 @@ public class OracleClient extends BaseJdbcClient
             ImmutableSet.Builder<String> schemaNames = ImmutableSet.builder();
             while (resultSet.next()) {
                 String schemaName = resultSet.getString(1).toLowerCase();
-                if (!schemaName.equals("xdb") && !schemaName.equals("system") && !schemaName.equals("wmsys")) {
+                if (!schemaName.equals("xdb") && !schemaName.equals("system") && !schemaName.equals("wmsys") && !schemaName.equals("xs$null")) {
                     schemaNames.add(schemaName);
                 }
             }
